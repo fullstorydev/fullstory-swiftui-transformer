@@ -28,8 +28,7 @@ import XcodeProjectPlugin
 
 extension FullStoryBuildPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        guard let target = target as? any SourceModuleTarget else { return [] }
-        let inputFiles = target.sourceFiles.filter({ $0.path.extension == "swift" })
+        let inputFiles = target.inputFiles.filter({ $0.path.extension == "swift" })
         NSLog("FullStoryBuildPlugin creating build commands...")
         return try inputFiles.map {
             let inputFile = $0
