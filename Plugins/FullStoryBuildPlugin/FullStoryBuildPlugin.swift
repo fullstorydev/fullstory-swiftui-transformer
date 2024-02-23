@@ -14,7 +14,7 @@ struct FullStoryBuildPlugin: BuildToolPlugin {
             let outputPath = context.pluginWorkDirectory.appending(outputName)
             return .buildCommand(
                 displayName: "Generating \(outputName) from \(inputPath.lastComponent)",
-                executable: try context.tool(named: "cp").path,
+                executable: try context.tool(named: "FullStorySourceTransformer").path,
                 arguments: [ "\(inputPath)", "\(outputPath)" ],
                 inputFiles: [ inputPath, ],
                 outputFiles: [ outputPath ]
@@ -38,7 +38,7 @@ extension FullStoryBuildPlugin: XcodeBuildToolPlugin {
             NSLog("FullStoryBuildPlugin creating build command to generate \(outputName) from \(inputPath.lastComponent)")
             return .buildCommand(
                 displayName: "Generating \(outputName) from \(inputPath.lastComponent)",
-                executable: try context.tool(named: "cp").path,
+                executable: try context.tool(named: "FullStorySourceTransformer").path,
                 arguments: [ "\(inputPath)", "\(outputPath)" ],
                 inputFiles: [ inputPath, ],
                 outputFiles: [ outputPath ]

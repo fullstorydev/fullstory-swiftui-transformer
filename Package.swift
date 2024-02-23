@@ -10,6 +10,7 @@ let package = Package(
         .plugin(
             name: "fullstory-swiftui-plugin",
             targets: ["FullStoryBuildPlugin"]),
+        .executable(name: "FullStorySourceTransformer", targets: ["FullStorySourceTransformer"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -21,6 +22,7 @@ let package = Package(
         .plugin(
             name: "FullStoryBuildPlugin",
             capability: .buildTool(),
-            dependencies: []),
+            dependencies: ["FullStorySourceTransformer"]),
+        .executableTarget(name: "FullStorySourceTransformer")
     ]
 )
