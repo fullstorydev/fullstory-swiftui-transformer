@@ -7,7 +7,9 @@ struct FullStorySourceTransformer {
             var str = try String(contentsOfFile: CommandLine.arguments[1])
             // TODO: allow whitespace with newlines; preserve newlines
             str = str.replacing(#/import SwiftUI/#, with: "import SwiftUI; import FullStory")
-            str = str.replacing(#/var body: some View/#, with: "var originalBody: some View")
+            str = str.replacing(#/struct ([^:\s]*): View /#, with: {match in
+                "struct \(match.1): FSSelectableView, View"
+            })
             str = str.replacing(#/var body: some View/#, with: "var body: some View { originalBody.fsSelectable() }; var originalBody: some View")
             try str.write(toFile: CommandLine.arguments[2], atomically: true, encoding: String.Encoding.utf8)
         }
