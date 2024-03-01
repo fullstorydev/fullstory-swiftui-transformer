@@ -26,6 +26,8 @@ let package = Package(
             name: "FullStoryBuildPlugin",
             capability: .buildTool(),
             dependencies: ["FullStorySourceTransformer"]),
-        .executableTarget(name: "FullStorySourceTransformer")
+        .executableTarget(name: "FullStorySourceTransformer"),
+        .testTarget(name: "FullStorySourceTransformerTests",
+                    dependencies: ["FullStorySourceTransformer"]),
     ]
 )
