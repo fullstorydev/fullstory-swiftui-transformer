@@ -283,7 +283,7 @@ struct MyView: View {
             // updated if the compiler starts warning for nil check on a value
             // that cannot be nil.
         } catch {
-            didFail = false
+            didFail = true
         }
         #expect(!didFail)
     }
