@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import ArgumentParser
 // upgrade Package.swift to swift-tools-version: 5.10 to run these tests!
 @testable import FullStorySwiftUITransformer
 
@@ -1059,4 +1060,62 @@ let package = Package(
         #expect(example1Restored == example1)
     }
 
+    @Test func UnexpectedEndComment() throws {
+        let example1 = """
+import SwiftUI
+struct MyView: /*Fullstory_XFORM_end*/ View {
+    var nobody: some View {
+        Text("Hello, World!")
+    }
 }
+"""
+        var didFailValidation = false;
+        do {
+            try FullStorySwiftUITransformer.validate(example1)
+        } catch is ValidationError {
+            // todo: check the error message (?)
+            didFailValidation = true
+        }
+        #expect(didFailValidation)
+    }
+
+    @Test func UnclosedStartComment() throws {
+        let example1 = """
+import SwiftUI
+struct MyView: /*Fullstory_XFORM_start*/ View {
+    var nobody: some View {
+        Text("Hello, World!")
+    }
+}
+"""
+        var didFailValidation = false;
+        do {
+            try FullStorySwiftUITransformer.validate(example1)
+        } catch is ValidationError {
+            // todo: check the error message (?)
+            didFailValidation = true
+        }
+        #expect(didFailValidation)
+    }
+
+    @Test func NestedTransformComment() throws {
+        let example1 = """
+import SwiftUI
+struct MyView: /*Fullstory_XFORM_start*//*Fullstory_XFORM_start*//*Fullstory_XFORM_end*//*Fullstory_XFORM_end*/ View {
+    var nobody: some View {
+        Text("Hello, World!")
+    }
+}
+"""
+        var didFailValidation = false;
+        do {
+            try FullStorySwiftUITransformer.validate(example1)
+        } catch is ValidationError {
+            // todo: check the error message (?)
+            didFailValidation = true
+        }
+        #expect(didFailValidation)
+    }
+}
+
+

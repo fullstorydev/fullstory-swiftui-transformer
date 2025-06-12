@@ -214,7 +214,14 @@ struct FullStorySwiftUITransformer: ParsableCommand {
                 return originalSource
             }
         }
+
+        // pre-untransform validation check
+        try validate(originalSource, file: file, context: "original")
+
         var source = try untransform(originalSource, file: file)
+
+        // post-untransform/pre-transform validation check
+        try validate(originalSource, file: file, context: "untransformed")
 
         let preTransformParsed = Parser.parse(source: source)
 
@@ -284,7 +291,49 @@ struct FullStorySwiftUITransformer: ParsableCommand {
         if verbose {
             print("Transforming SwiftUI file \(file)...")
         }
-        return try String(data: data, encoding: .utf8) ?? { throw TransformError("Could not convert View transform back to string") }()
+
+        let transformedSource = try String(data: data, encoding: .utf8) ?? { throw TransformError("Could not convert View transform back to string") }()
+
+        // post-transform validation check
+        try validate(transformedSource, file: file, context: "transformed")
+
+        return transformedSource
+    }
+
+    // check that the XFORM start/end comments are balanced and unnested
+    internal static func validate(_ input: String, file: String = "File", context: String = "") throws {
+        let xformCommentPattern = "/\\*Fullstory_XFORM_(start|end)\\*/"
+        for (index, line) in input.split(separator: "\n").enumerated() {
+            // search for all /*Fullstory_XFORM_start*/ and /*Fullstory_XFORM_end*/ comments in the line (one pair cannot span multiple lines)
+            var inXform = false
+            var count = 0
+            let matches = try NSRegularExpression(pattern: xformCommentPattern)
+                .matches(in: String(line),
+                  range: NSRange(location:0, length:String(line).utf16.count))
+            for match in matches {
+                let isStart = match.numberOfRanges > 1 && String(line)[String(line).index(String(line).startIndex, offsetBy: match.range(at: 1).lowerBound)..<String(line).index(String(line).startIndex, offsetBy: match.range(at: 1).upperBound)] == "start"
+                count += 1
+                // handle the happy cases first
+                if (isStart && !inXform) {
+                    inXform = true
+                }
+                else if (!isStart && inXform) {
+                    inXform = false
+                }
+                // now for the errors
+                else if (!isStart && !inXform) {
+                    throw ValidationError("Unexpected /*Fullstory_XFORM_end*/ comment (#\(count)) in \(context) source at line \(index + 1) in \(file)")
+                }
+                else if (isStart && inXform) {
+                    throw ValidationError("Nested /*Fullstory_XFORM_start*/ comment (#\(count)) in \(context) source  at line \(index + 1) in \(file)")
+                }
+            }
+            // finally ensure the line didn't end with an open transform.
+            if inXform {
+                throw ValidationError("Unclosed /*Fullstory_XFORM_start*/ comment (#\(count)) in \(context) source  at line \(index + 1) in \(file)")
+            }
+        }
+        // Success! If we get this far without throwing, then the file doesn't have any detected errors!
     }
 
     internal static func untransform(_ input: String, file: String = "File") throws -> String {
