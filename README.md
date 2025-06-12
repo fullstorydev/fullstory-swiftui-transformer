@@ -1,0 +1,3 @@
+# Fullstory SwiftUI Source Transformer
+
+This tool is intended to be used in conjunction with [Fullstory for Mobile Apps](https://www.fullstory.com/platform/mobile-apps/) to automatically transform the source code of their [SwiftUI](https://developer.apple.com/documentation/swiftui/) apps. It adds calls to the [FullStory framework](https://help.fullstory.com/hc/en-us/articles/360042772333-Getting-Started-with-iOS-Data-Capture) to enable Fullstory selectors. For more information about the use of this tool, see [this article](https://help.fullstory.com/hc/en-us/articles/25171290439191-Installation-Guide-for-Fullstory-SwiftUI-Automatic-Selector-Preview).
