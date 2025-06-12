@@ -302,12 +302,11 @@ struct FullStorySwiftUITransformer: ParsableCommand {
 
     // check that the XFORM start/end comments are balanced and unnested
     internal static func validate(_ input: String, file: String = "File", context: String = "") throws {
-        let xformCommentPattern = "/\\*Fullstory_XFORM_(start|end)\\*/"
         for (index, line) in input.split(separator: "\n").enumerated() {
             // search for all /*Fullstory_XFORM_start*/ and /*Fullstory_XFORM_end*/ comments in the line (one pair cannot span multiple lines)
             var inXform = false
             var count = 0
-            let matches = try NSRegularExpression(pattern: xformCommentPattern)
+            let matches = try NSRegularExpression(pattern: "/\\*Fullstory_XFORM_(start|end)\\*/")
                 .matches(in: String(line),
                   range: NSRange(location:0, length:String(line).utf16.count))
             for match in matches {
