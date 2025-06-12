@@ -1,3 +1,13 @@
+//===----------------------------------------------------------------------===//
+//
+// Copyright (c) 2025 Fullstory, Inc.
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// You should have received a copy of this license with the program;
+// if not, see https://swift.org/LICENSE.txt for license information
+//
+//===----------------------------------------------------------------------===//
+
 import Foundation
 import Testing
 // upgrade Package.swift to swift-tools-version: 5.10 to run these tests!
