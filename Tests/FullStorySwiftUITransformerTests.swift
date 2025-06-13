@@ -1069,14 +1069,9 @@ struct MyView: /*Fullstory_XFORM_end*/ View {
     }
 }
 """
-        var didFailValidation = false;
-        do {
+        #expect(throws: FullStorySwiftUITransformer.TransformError("Unexpected /*Fullstory_XFORM_end*/ comment in  source at line 2 in File.")){
             try FullStorySwiftUITransformer.validate(example1)
-        } catch is ValidationError {
-            // todo: check the error message (?)
-            didFailValidation = true
-        }
-        #expect(didFailValidation)
+          }
     }
 
     @Test func UnclosedStartComment() throws {
@@ -1088,14 +1083,9 @@ struct MyView: /*Fullstory_XFORM_start*/ View {
     }
 }
 """
-        var didFailValidation = false;
-        do {
+        #expect(throws: FullStorySwiftUITransformer.TransformError("Unclosed /*Fullstory_XFORM_start*/ comment in  source at line 2 in File.")){
             try FullStorySwiftUITransformer.validate(example1)
-        } catch is ValidationError {
-            // todo: check the error message (?)
-            didFailValidation = true
-        }
-        #expect(didFailValidation)
+          }
     }
 
     @Test func NestedTransformComment() throws {
@@ -1107,14 +1097,9 @@ struct MyView: /*Fullstory_XFORM_start*//*Fullstory_XFORM_start*//*Fullstory_XFO
     }
 }
 """
-        var didFailValidation = false;
-        do {
+        #expect(throws: FullStorySwiftUITransformer.TransformError("Nested /*Fullstory_XFORM_start*/ comment in  source at line 2 in File.")){
             try FullStorySwiftUITransformer.validate(example1)
-        } catch is ValidationError {
-            // todo: check the error message (?)
-            didFailValidation = true
-        }
-        #expect(didFailValidation)
+          }
     }
 }
 

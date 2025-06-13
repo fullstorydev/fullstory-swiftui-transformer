@@ -191,16 +191,18 @@ class PackageDependenciesFinder: SyntaxVisitor {
 
 @main
 struct FullStorySwiftUITransformer: ParsableCommand {
-    internal static func transform(_ originalSource: String, file: String = "File", transformPackageSwift: Bool = true, verbose: Bool = false) throws -> String {
-        struct TransformError : LocalizedError {
-            let message: String
-            var errorDescription: String? {
-                message
-            }
-            init(_ message: String) {
-                self.message = message
-            }
+    struct TransformError : LocalizedError, Equatable {
+        let message: String
+        var errorDescription: String? {
+            message
         }
+        init(_ message: String) {
+            self.message = message
+        }
+    }
+
+    internal static func transform(_ originalSource: String, file: String = "File", transformPackageSwift: Bool = true, verbose: Bool = false) throws -> String {
+
         if originalSource.contains("//Fullstory_XFORM_disable") {
             return originalSource
         }
@@ -311,13 +313,11 @@ struct FullStorySwiftUITransformer: ParsableCommand {
         for (index, line) in input.split(separator: "\n").enumerated() {
             // search for all /*Fullstory_XFORM_start*/ and /*Fullstory_XFORM_end*/ comments in the line (one pair cannot span multiple lines)
             var inXform = false
-            var count = 0
             let matches = try NSRegularExpression(pattern: "/\\*Fullstory_XFORM_(start|end)\\*/")
                 .matches(in: String(line),
                   range: NSRange(location:0, length:String(line).utf16.count))
             for match in matches {
                 let isStart = match.numberOfRanges > 1 && String(line)[String(line).index(String(line).startIndex, offsetBy: match.range(at: 1).lowerBound)..<String(line).index(String(line).startIndex, offsetBy: match.range(at: 1).upperBound)] == "start"
-                count += 1
                 // handle the happy cases first
                 if (isStart && !inXform) {
                     inXform = true
@@ -327,15 +327,15 @@ struct FullStorySwiftUITransformer: ParsableCommand {
                 }
                 // now for the errors
                 else if (!isStart && !inXform) {
-                    throw ValidationError("Unexpected /*Fullstory_XFORM_end*/ comment (#\(count)) in \(context) source at line \(index + 1) in \(file)")
+                    throw TransformError("Unexpected /*Fullstory_XFORM_end*/ comment in \(context) source at line \(index+1) in \(file).")
                 }
                 else if (isStart && inXform) {
-                    throw ValidationError("Nested /*Fullstory_XFORM_start*/ comment (#\(count)) in \(context) source  at line \(index + 1) in \(file)")
+                    throw TransformError("Nested /*Fullstory_XFORM_start*/ comment in \(context) source at line \(index+1) in \(file).")
                 }
             }
             // finally ensure the line didn't end with an open transform.
             if inXform {
-                throw ValidationError("Unclosed /*Fullstory_XFORM_start*/ comment (#\(count)) in \(context) source  at line \(index + 1) in \(file)")
+                throw TransformError("Unclosed /*Fullstory_XFORM_start*/ comment in \(context) source at line \(index+1) in \(file).")
             }
         }
         // Success! If we get this far without throwing, then the file doesn't have any detected errors!
