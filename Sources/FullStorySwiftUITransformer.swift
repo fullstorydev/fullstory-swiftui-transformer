@@ -215,13 +215,17 @@ struct FullStorySwiftUITransformer: ParsableCommand {
             }
         }
 
+#if DEBUG
         // pre-untransform validation check
         try validate(originalSource, file: file, context: "original")
+#endif
 
         var source = try untransform(originalSource, file: file)
 
+#if DEBUG
         // post-untransform/pre-transform validation check
         try validate(originalSource, file: file, context: "untransformed")
+#endif
 
         let preTransformParsed = Parser.parse(source: source)
 
@@ -294,8 +298,10 @@ struct FullStorySwiftUITransformer: ParsableCommand {
 
         let transformedSource = try String(data: data, encoding: .utf8) ?? { throw TransformError("Could not convert View transform back to string") }()
 
+#if DEBUG
         // post-transform validation check
         try validate(transformedSource, file: file, context: "transformed")
+#endif
 
         return transformedSource
     }
